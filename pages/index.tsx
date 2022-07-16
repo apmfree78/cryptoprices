@@ -5,10 +5,6 @@ import styles from '../styles/Home.module.css';
 import axios from 'axios';
 import { useEffect } from 'react';
 
-// hashmap to quickly extract information on crypto
-// token from it's symbol
-const cryptoSymbolIndex = {};
-
 interface BraveCoinOptions {
   method: string;
   url: string;
@@ -32,6 +28,14 @@ interface BraveCryptoData {
   url: string;
 }
 
+interface CryptoIndex {
+  [symbol: string]: BraveCryptoData;
+}
+
+// hashmap to quickly extract information on crypto
+// token from it's symbol
+const cryptoSymbolIndex: CryptoIndex = {};
+
 // pull crypto data , including ids, names, symbol etc
 async function getCryptoIds() {
   const options: BraveCoinOptions = {
@@ -48,15 +52,14 @@ async function getCryptoIds() {
     console.error(error);
   });
 
-  const cryptoData: BraveCryptoData[] = response?.data;
+  const cryptoData: BraveCryptoData[] = response?.data?.content;
 
   // extract data and put it in cryptoSymbolIndex hashmap
   cryptoData.forEach((crypto) => {
     cryptoSymbolIndex[crypto.symbol] = { ...crypto };
   });
 
-  console.log(response?.data);
-  // return response?.data;
+  console.log(cryptoSymbolIndex);
 }
 
 const Home: NextPage = () => {
