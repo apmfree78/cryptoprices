@@ -65,6 +65,26 @@ async function getCryptoIds() {
 const Home: NextPage = () => {
   useEffect(() => {
     getCryptoIds();
+
+    const options = {
+      method: 'POST',
+      url: 'https://bravenewcoin.p.rapidapi.com/oauth/token',
+      headers: {
+        'content-type': 'application/json',
+        'X-RapidAPI-Key': 'ba57c7b61amshfcecd1974184d49p19a42fjsn85787055bfa1',
+        'X-RapidAPI-Host': 'bravenewcoin.p.rapidapi.com',
+      },
+      data: '{"audience":"https://api.bravenewcoin.com","client_id":"oCdQoZoI96ERE9HY3sQ7JmbACfBf55RY","grant_type":"client_credentials"}',
+    };
+
+    axios
+      .request(options)
+      .then(function (response) {
+        console.log(response.data);
+      })
+      .catch(function (error) {
+        console.error(error);
+      });
   }, []);
 
   return <div className={styles.container}>Hello World!</div>;
