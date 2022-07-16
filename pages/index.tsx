@@ -9,6 +9,7 @@ import {
   BraveCoinOptions,
   BraveCoinAccessTokenOptions,
   BraveCryptoData,
+  BraveCoinAssetTicker,
 } from '../library/interfaces';
 
 // hashmap to quickly extract information on crypto
@@ -19,7 +20,7 @@ const cryptoSymbolIndex: CryptoIndex = {};
 let accessToken: string = '';
 
 // pull crypto data , including ids, names, symbol etc
-async function getCryptoIds() {
+async function getCryptoIds(cryptoSymbols: CryptoIndex) {
   const options: BraveCoinOptions = {
     method: 'GET',
     url: 'https://bravenewcoin.p.rapidapi.com/asset',
@@ -36,13 +37,13 @@ async function getCryptoIds() {
       console.error(error);
     });
 
-  // extract data and put it in cryptoSymbolIndex hashmap for easy access
+  // extract data and put it in cryptoSymbols hashmap for easy access
   const cryptoData: BraveCryptoData[] = response?.data?.content;
   cryptoData.forEach((crypto) => {
-    cryptoSymbolIndex[crypto.symbol] = { ...crypto };
+    cryptoSymbols[crypto.symbol] = { ...crypto };
   });
 
-  // console.log(cryptoSymbolIndex);
+  console.log(cryptoSymbolIndex['BTC'].id);
 }
 
 async function getAccessToken() {
@@ -64,18 +65,44 @@ async function getAccessToken() {
     });
 
   accessToken = response?.data?.access_token;
-  console.log(accessToken);
 }
 
+// get market data from crypto assets from BraveCoin API
+// token => access token we got from getAccessToken()
+// coinID => ID of crypto assets (that we obtained from  getCryptoIds() )
+// these IDs are now accessible through cryptoSymbolIndex[symbol].id
+async function getCoinMarketData(token: string = accessToken, coinID: string) {
+  const options = {
+    method: 'GET',
+    url: 'https://bravenewcoin.p.rapidapi.com/market-cap',
+    params: { assetId: coinID },
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'X-RapidAPI-Key': 'ba57c7b61amshfcecd1974184d49p19a42fjsn85787055bfa1',
+      'X-RapidAPI-Host': 'bravenewcoin.p.rapidapi.com',
+    },
+  };
+
+  const response: void | AxiosResponse = await axios
+    .request(options)
+    .catch((error) => {
+      console.error(error);
+    });
+
+  console.log(response?.data?.content);
+}
 const Home: NextPage = () => {
   useEffect(() => {
     // getting info via API on all crypto listings (symbol, name, etc)
     // listed on BraveNewCoin, this info is then saved to cryptoSymbolIndex
     // hashmap for quick access
-    getCryptoIds();
+    getCryptoIds(cryptoSymbolIndex);
     // getting BraveNewCoin 24-hr access token via API that will allow
     // us to get market data on crypto assets
     getAccessToken();
+
+    // get data on BTC price
+    getCoinMarketData(accessToken, cryptoSymbolIndex['BTC'].id);
   }, []);
 
   return <div className={styles.container}>Hello World!</div>;

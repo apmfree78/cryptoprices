@@ -20,6 +20,19 @@ export interface BraveCoinAccessTokenOptions {
   data: string;
 }
 
+export interface BraveCoinAssetTicker {
+  method: string;
+  url: string;
+  params: {
+    status: string;
+  };
+  headers: {
+    Authorization: string;
+    'X-RapidAPI-Key': string;
+    'X-RapidAPI-Host': string;
+  };
+}
+
 export interface BraveCryptoData {
   contractAddress: string;
   id: string;
@@ -34,5 +47,3 @@ export interface BraveCryptoData {
 export interface CryptoIndex {
   [symbol: string]: BraveCryptoData;
 }
-
-
