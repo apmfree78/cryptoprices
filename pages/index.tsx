@@ -41,6 +41,9 @@ async function getAccessToken() {
 // coinID => ID of crypto assets (that we obtained from  getCryptoIds() )
 // these IDs are now accessible through cryptoSymbolIndex[symbol].id
 async function getCoinMarketData(token: string = accessToken, coinID: string) {
+  token =
+    'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Ik5EVXhNRGhHT0VReE56STVOelJCTTBJM1FrUTVOa0l4TWtRd1FrSTJSalJFTVRaR1F6QTBOZyJ9.eyJpc3MiOiJodHRwczovL2F1dGguYnJhdmVuZXdjb2luLmNvbS8iLCJzdWIiOiJvQ2RRb1pvSTk2RVJFOUhZM3NRN0ptYkFDZkJmNTVSWUBjbGllbnRzIiwiYXVkIjoiaHR0cHM6Ly9hcGkuYnJhdmVuZXdjb2luLmNvbSIsImlhdCI6MTY1NzkyNzk0NSwiZXhwIjoxNjU4MDE0MzQ1LCJhenAiOiJvQ2RRb1pvSTk2RVJFOUhZM3NRN0ptYkFDZkJmNTVSWSIsInNjb3BlIjoicmVhZDppbmRleC10aWNrZXIgcmVhZDpyYW5raW5nIHJlYWQ6bXdhIHJlYWQ6Z3dhIHJlYWQ6YWdncmVnYXRlcyByZWFkOm1hcmtldCByZWFkOmFzc2V0IHJlYWQ6b2hsY3YgcmVhZDptYXJrZXQtY2FwIiwiZ3R5IjoiY2xpZW50LWNyZWRlbnRpYWxzIn0.VwqPVZQKP-dEPchuJpNRzuNrvp3Dns8f8H2lhBWAF8OH8FTXxYPBgKWximjtCTSTUX2XyCMrmshxi4qcU0rUK1hcXFcQQHsAX8NKZYYNiQTcioN-8FzAzgSE7TfGMsPTH6azJVOr5xqWoABaq348dY_L3VU3X-ytHOUro7RqhAaAZpqX-S6lsv-idlYbqYtSzPIktYo8nwKTwgnbaqJVEvtKRduNtg0jEqdEdjYDfhlktPaNLAIjslLpLly2ujEvMosuPdxKLdXIq8CDnZt4Ki5B0C8U3jcRM980kvhoFWSpAx7-pXu5vDxtWa-R8QMKCF7vqjNoIE4jllT4dlnFdw';
+
   const options: BraveCoinAssetTicker = {
     method: 'GET',
     url: 'https://bravenewcoin.p.rapidapi.com/market-cap',
@@ -55,10 +58,11 @@ async function getCoinMarketData(token: string = accessToken, coinID: string) {
   const response: void | AxiosResponse = await axios
     .request(options)
     .catch((error) => {
-      console.error(error);
+      console.error(error.message);
     });
 
-  console.log(response?.data?.content);
+  const [{ price }] = response?.data?.content;
+  console.log(price);
 }
 const Home: NextPage = () => {
   // capture coin data in state variable
@@ -86,7 +90,7 @@ const Home: NextPage = () => {
     getAccessToken();
 
     // get data on BTC price
-    // getCoinMarketData(accessToken, cryptoSymbolIndex['BTC'].id);
+    console.log(cryptoIndex);
   }, []);
 
   // pull crypto data , including ids, names, symbol etc
@@ -118,8 +122,13 @@ const Home: NextPage = () => {
 
     // set state
     setCryptoIndex(cryptoSymbolIndex);
-    // console.log(cryptoSymbolIndex['BTC'].id);
+    // console.log(cryptoIndex['BTC'].id);
   }
+
+  // console.log(cryptoIndex['BTC'].id);
+  console.log(accessToken);
+  // getCoinMarketData(accessToken, cryptoIndex['BTC'].id);
+  getCoinMarketData(accessToken, 'f1ff77b6-3ab4-4719-9ded-2fc7e71cff1f');
 
   return <div className={styles.container}>Hello World!</div>;
 };
