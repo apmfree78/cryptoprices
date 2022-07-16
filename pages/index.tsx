@@ -5,9 +5,36 @@ import styles from '../styles/Home.module.css';
 import axios from 'axios';
 import { useEffect } from 'react';
 
+// hashmap to quickly extract information on crypto
+// token from it's symbol
+const cryptoSymbolIndex = {};
+
+interface BraveCoinOptions {
+  method: string;
+  url: string;
+  params: {
+    status: string;
+  };
+  headers: {
+    'X-RapidAPI-Key': string;
+    'X-RapidAPI-Host': string;
+  };
+}
+
+interface BraveCryptoData {
+  contractAddress: string;
+  id: string;
+  name: string;
+  slugName: string;
+  status: string;
+  symbol: string;
+  type: string;
+  url: string;
+}
+
 // pull crypto data , including ids, names, symbol etc
 async function getCryptoIds() {
-  const options = {
+  const options: BraveCoinOptions = {
     method: 'GET',
     url: 'https://bravenewcoin.p.rapidapi.com/asset',
     params: { status: 'ACTIVE' },
@@ -21,7 +48,15 @@ async function getCryptoIds() {
     console.error(error);
   });
 
+  const cryptoData: BraveCryptoData[] = response?.data;
+
+  // extract data and put it in cryptoSymbolIndex hashmap
+  cryptoData.forEach((crypto) => {
+    cryptoSymbolIndex[crypto.symbol] = { ...crypto };
+  });
+
   console.log(response?.data);
+  // return response?.data;
 }
 
 const Home: NextPage = () => {
