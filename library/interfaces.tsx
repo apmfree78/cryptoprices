@@ -24,7 +24,7 @@ export interface BraveCoinAssetTicker {
   method: string;
   url: string;
   params: {
-    status: string;
+    assetId: string;
   };
   headers: {
     Authorization: string;

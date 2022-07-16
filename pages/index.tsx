@@ -3,7 +3,7 @@ import Head from 'next/head';
 import Image from 'next/image';
 import styles from '../styles/Home.module.css';
 import axios, { AxiosResponse } from 'axios';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   CryptoIndex,
   BraveCoinOptions,
@@ -12,39 +12,8 @@ import {
   BraveCoinAssetTicker,
 } from '../library/interfaces';
 
-// hashmap to quickly extract information on crypto
-// token from it's symbol
-const cryptoSymbolIndex: CryptoIndex = {};
-
 // access token required to get market data
 let accessToken: string = '';
-
-// pull crypto data , including ids, names, symbol etc
-async function getCryptoIds(cryptoSymbols: CryptoIndex) {
-  const options: BraveCoinOptions = {
-    method: 'GET',
-    url: 'https://bravenewcoin.p.rapidapi.com/asset',
-    params: { status: 'ACTIVE' },
-    headers: {
-      'X-RapidAPI-Key': 'ba57c7b61amshfcecd1974184d49p19a42fjsn85787055bfa1',
-      'X-RapidAPI-Host': 'bravenewcoin.p.rapidapi.com',
-    },
-  };
-
-  const response: void | AxiosResponse = await axios
-    .request(options)
-    .catch((error) => {
-      console.error(error);
-    });
-
-  // extract data and put it in cryptoSymbols hashmap for easy access
-  const cryptoData: BraveCryptoData[] = response?.data?.content;
-  cryptoData.forEach((crypto) => {
-    cryptoSymbols[crypto.symbol] = { ...crypto };
-  });
-
-  console.log(cryptoSymbolIndex['BTC'].id);
-}
 
 async function getAccessToken() {
   const options: BraveCoinAccessTokenOptions = {
@@ -72,7 +41,7 @@ async function getAccessToken() {
 // coinID => ID of crypto assets (that we obtained from  getCryptoIds() )
 // these IDs are now accessible through cryptoSymbolIndex[symbol].id
 async function getCoinMarketData(token: string = accessToken, coinID: string) {
-  const options = {
+  const options: BraveCoinAssetTicker = {
     method: 'GET',
     url: 'https://bravenewcoin.p.rapidapi.com/market-cap',
     params: { assetId: coinID },
@@ -92,18 +61,65 @@ async function getCoinMarketData(token: string = accessToken, coinID: string) {
   console.log(response?.data?.content);
 }
 const Home: NextPage = () => {
+  // capture coin data in state variable
+  // can look up information on crypto with
+  // cryptoIndex[SYMBOL] : BraveCryptoData
+  /* export interface BraveCryptoData {
+    contractAddress: string;
+    id: string;
+    name: string;
+    slugName: string;
+    status: string;
+    symbol: string;
+    type: string;
+    url: string;
+  } */
+  const [cryptoIndex, setCryptoIndex] = useState<CryptoIndex>({});
+
   useEffect(() => {
     // getting info via API on all crypto listings (symbol, name, etc)
     // listed on BraveNewCoin, this info is then saved to cryptoSymbolIndex
     // hashmap for quick access
-    getCryptoIds(cryptoSymbolIndex);
+    getCryptoIds();
     // getting BraveNewCoin 24-hr access token via API that will allow
     // us to get market data on crypto assets
     getAccessToken();
 
     // get data on BTC price
-    getCoinMarketData(accessToken, cryptoSymbolIndex['BTC'].id);
+    // getCoinMarketData(accessToken, cryptoSymbolIndex['BTC'].id);
   }, []);
+
+  // pull crypto data , including ids, names, symbol etc
+  async function getCryptoIds() {
+    const options: BraveCoinOptions = {
+      method: 'GET',
+      url: 'https://bravenewcoin.p.rapidapi.com/asset',
+      params: { status: 'ACTIVE' },
+      headers: {
+        'X-RapidAPI-Key': 'ba57c7b61amshfcecd1974184d49p19a42fjsn85787055bfa1',
+        'X-RapidAPI-Host': 'bravenewcoin.p.rapidapi.com',
+      },
+    };
+
+    const response: void | AxiosResponse = await axios
+      .request(options)
+      .catch((error) => {
+        console.error(error);
+      });
+
+    // hashmap to quickly extract information on crypto
+    // token from it's symbol
+    const cryptoSymbolIndex: CryptoIndex = {};
+    // extract data and put it in cryptoSymbols hashmap for easy access
+    const cryptoData: BraveCryptoData[] = response?.data?.content;
+    cryptoData.forEach((crypto) => {
+      cryptoSymbolIndex[crypto.symbol] = { ...crypto };
+    });
+
+    // set state
+    setCryptoIndex(cryptoSymbolIndex);
+    // console.log(cryptoSymbolIndex['BTC'].id);
+  }
 
   return <div className={styles.container}>Hello World!</div>;
 };
