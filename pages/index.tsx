@@ -4,6 +4,7 @@ import Image from 'next/image';
 import styles from '../styles/Home.module.css';
 import axios, { AxiosResponse } from 'axios';
 import { useEffect, useState } from 'react';
+import Cookies from 'universal-cookie';
 import {
   CryptoIndex,
   BraveCoinOptions,
@@ -14,6 +15,7 @@ import {
 
 // access token required to get market data
 let accessToken: string = '';
+const cookies: Cookies = new Cookies();
 
 async function getAccessToken() {
   const options: BraveCoinAccessTokenOptions = {
@@ -34,6 +36,7 @@ async function getAccessToken() {
     });
 
   accessToken = response?.data?.access_token;
+  cookies.set('token', accessToken);
 }
 
 // get market data from crypto assets from BraveCoin API
@@ -87,7 +90,9 @@ const Home: NextPage = () => {
     getCryptoIds();
     // getting BraveNewCoin 24-hr access token via API that will allow
     // us to get market data on crypto assets
-    getAccessToken();
+    // first check if token is cookied
+    accessToken = cookies.get('token');
+    if (!accessToken) getAccessToken();
 
     // get data on BTC price
     console.log(cryptoIndex);
