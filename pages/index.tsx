@@ -3,6 +3,7 @@ import Head from 'next/head';
 import Image from 'next/image';
 import styles from '../styles/Home.module.css';
 import axios, { AxiosResponse } from 'axios';
+// import 'dotenv/config.js';
 import { useEffect, useState } from 'react';
 import Cookies from 'universal-cookie';
 import {
@@ -16,6 +17,7 @@ import {
 // access token required to get market data
 let accessToken: string = '';
 const cookies: Cookies = new Cookies();
+console.log(`key: ${process.env.RAPID_API_KEY}`);
 
 async function getAccessToken() {
   const options: BraveCoinAccessTokenOptions = {
@@ -23,7 +25,7 @@ async function getAccessToken() {
     url: 'https://bravenewcoin.p.rapidapi.com/oauth/token',
     headers: {
       'content-type': 'application/json',
-      'X-RapidAPI-Key': 'ba57c7b61amshfcecd1974184d49p19a42fjsn85787055bfa1',
+      'X-RapidAPI-Key': process.env.RAPID_API_KEY || undefined,
       'X-RapidAPI-Host': 'bravenewcoin.p.rapidapi.com',
     },
     data: '{"audience":"https://api.bravenewcoin.com","client_id":"oCdQoZoI96ERE9HY3sQ7JmbACfBf55RY","grant_type":"client_credentials"}',
@@ -92,7 +94,7 @@ const Home: NextPage = () => {
     // first check if token is cookied
     accessToken = cookies.get('token');
     if (!accessToken) getAccessToken();
-
+    console.log(accessToken);
     // get data on BTC price
     console.log(cryptoIndex);
   }, []);
@@ -130,9 +132,9 @@ const Home: NextPage = () => {
   }
 
   // console.log(cryptoIndex['BTC'].id);
-  console.log(cryptoIndex['BTC'].id);
+  // console.log(cryptoIndex['BTC'].id);
   // getCoinMarketData(accessToken, cryptoIndex['BTC'].id);
-  getCoinMarketData(accessToken, cryptoIndex['BTC'].id);
+  // getCoinMarketData(accessToken, cryptoIndex['BTC'].id);
 
   return <div className={styles.container}>Hello World!</div>;
 };
