@@ -25,7 +25,7 @@ async function getAccessToken() {
     url: 'https://bravenewcoin.p.rapidapi.com/oauth/token',
     headers: {
       'content-type': 'application/json',
-      'X-RapidAPI-Key': process.env.RAPID_API_KEY || undefined,
+      'X-RapidAPI-Key': process.env.RAPID_API_KEY,
       'X-RapidAPI-Host': 'bravenewcoin.p.rapidapi.com',
     },
     data: '{"audience":"https://api.bravenewcoin.com","client_id":"oCdQoZoI96ERE9HY3sQ7JmbACfBf55RY","grant_type":"client_credentials"}',
@@ -52,7 +52,7 @@ async function getCoinMarketData(token: string = accessToken, coinID: string) {
     params: { assetId: coinID },
     headers: {
       Authorization: `Bearer ${token}`,
-      'X-RapidAPI-Key': 'ba57c7b61amshfcecd1974184d49p19a42fjsn85787055bfa1',
+      'X-RapidAPI-Key': process.env.RAPID_API_KEY,
       'X-RapidAPI-Host': 'bravenewcoin.p.rapidapi.com',
     },
   };
@@ -132,9 +132,7 @@ const Home: NextPage = () => {
   }
 
   // console.log(cryptoIndex['BTC'].id);
-  // console.log(cryptoIndex['BTC'].id);
-  // getCoinMarketData(accessToken, cryptoIndex['BTC'].id);
-  // getCoinMarketData(accessToken, cryptoIndex['BTC'].id);
+  getCoinMarketData(accessToken, cryptoIndex['BTC'].id);
 
   return <div className={styles.container}>Hello World!</div>;
 };

@@ -5,7 +5,7 @@ export interface BraveCoinOptions {
     status: string;
   };
   headers: {
-    'X-RapidAPI-Key': string;
+    'X-RapidAPI-Key': string | undefined;
     'X-RapidAPI-Host': string;
   };
 }
@@ -14,7 +14,7 @@ export interface BraveCoinAccessTokenOptions {
   url: string;
   headers: {
     'content-type': string;
-    'X-RapidAPI-Key': string;
+    'X-RapidAPI-Key': string | undefined;
     'X-RapidAPI-Host': string;
   };
   data: string;
@@ -28,7 +28,7 @@ export interface BraveCoinAssetTicker {
   };
   headers: {
     Authorization: string;
-    'X-RapidAPI-Key': string;
+    'X-RapidAPI-Key': string | undefined;
     'X-RapidAPI-Host': string;
   };
 }
