@@ -3,7 +3,6 @@ import Head from 'next/head';
 import Image from 'next/image';
 import styles from '../styles/Home.module.css';
 import axios, { AxiosResponse } from 'axios';
-// import 'dotenv/config.js';
 import { useEffect, useState } from 'react';
 import Cookies from 'universal-cookie';
 import {
@@ -17,7 +16,6 @@ import {
 // access token required to get market data
 let accessToken: string = '';
 const cookies: Cookies = new Cookies();
-console.log(`key: ${process.env.RAPID_API_KEY}`);
 
 async function getAccessToken() {
   const options: BraveCoinAccessTokenOptions = {
@@ -41,33 +39,6 @@ async function getAccessToken() {
   cookies.set('token', accessToken);
 }
 
-// get market data from crypto assets from BraveCoin API
-// token => access token we got from getAccessToken()
-// coinID => ID of crypto assets (that we obtained from  getCryptoIds() )
-// these IDs are now accessible through cryptoSymbolIndex[symbol].id
-async function getCoinMarketData(token: string = accessToken, coinID: string) {
-  const options: BraveCoinAssetTicker = {
-    method: 'GET',
-    url: 'https://bravenewcoin.p.rapidapi.com/market-cap',
-    params: { assetId: coinID },
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'X-RapidAPI-Key': process.env.RAPID_API_KEY,
-      'X-RapidAPI-Host': 'bravenewcoin.p.rapidapi.com',
-    },
-  };
-
-  const response: void | AxiosResponse = await axios
-    .request(options)
-    .catch((error) => {
-      console.error(error.message);
-    });
-
-  if (!!response) {
-    const [{ price }] = response?.data?.content;
-    console.log(price);
-  }
-}
 const Home: NextPage = () => {
   // capture coin data in state variable
   // can look up information on crypto with
@@ -82,21 +53,66 @@ const Home: NextPage = () => {
     type: string;
     url: string;
   } */
+
+  // get market data from crypto assets from BraveCoin API
+  // token => access token we got from getAccessToken()
+  // coinID => ID of crypto assets (that we obtained from  getCryptoIds() )
+  // these IDs are now accessible through cryptoSymbolIndex[symbol].id
+  async function getCoinMarketData(
+    token: string = accessToken,
+    coinID: string
+  ) {
+    const options: BraveCoinAssetTicker = {
+      method: 'GET',
+      url: 'https://bravenewcoin.p.rapidapi.com/market-cap',
+      params: { assetId: coinID },
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'X-RapidAPI-Key': process.env.RAPID_API_KEY,
+        'X-RapidAPI-Host': 'bravenewcoin.p.rapidapi.com',
+      },
+    };
+
+    const response: void | AxiosResponse = await axios
+      .request(options)
+      .catch((error) => {
+        console.error(error.message);
+      });
+
+    if (!!response) {
+      const [{ price }] = response?.data?.content;
+      console.log(price);
+    }
+  }
+
   const [cryptoIndex, setCryptoIndex] = useState<CryptoIndex>({});
 
   useEffect(() => {
     // getting info via API on all crypto listings (symbol, name, etc)
     // listed on BraveNewCoin, this info is then saved to cryptoSymbolIndex
     // hashmap for quick access
-    getCryptoIds();
+
+    // extracing state from localStorage if it exists
+    const savedState: string | null = localStorage.getItem('crypto_index');
+
+    // if localStorage retrevial was successful, setting state
+    // otherwise getting data from API
+    if (savedState != null) setCryptoIndex(JSON.parse(savedState));
+    else {
+      getCryptoIds();
+
+      // saving new cryptoIndex obtained form API call to localStorage
+      localStorage.setItem('crypto_index', JSON.stringify(cryptoIndex));
+    }
+
     // getting BraveNewCoin 24-hr access token via API that will allow
     // us to get market data on crypto assets
     // first check if token is cookied
     accessToken = cookies.get('token');
     if (!accessToken) getAccessToken();
-    console.log(accessToken);
+    // console.log(accessToken);
     // get data on BTC price
-    console.log(cryptoIndex);
+    // console.log(cryptoIndex);
   }, []);
 
   // pull crypto data , including ids, names, symbol etc
@@ -128,7 +144,7 @@ const Home: NextPage = () => {
 
     // set state
     setCryptoIndex({ ...cryptoSymbolIndex });
-    console.log(cryptoIndex['BTC'].id);
+    // console.log(cryptoIndex['BTC'].id);
   }
 
   // console.log(cryptoIndex['BTC'].id);
