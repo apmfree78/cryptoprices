@@ -122,7 +122,7 @@ const Home: NextPage = () => {
       url: 'https://bravenewcoin.p.rapidapi.com/asset',
       params: { status: 'ACTIVE' },
       headers: {
-        'X-RapidAPI-Key': 'ba57c7b61amshfcecd1974184d49p19a42fjsn85787055bfa1',
+        'X-RapidAPI-Key': process.env.RAPID_API_KEY,
         'X-RapidAPI-Host': 'bravenewcoin.p.rapidapi.com',
       },
     };
